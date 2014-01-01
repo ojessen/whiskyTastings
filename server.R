@@ -26,7 +26,7 @@ shinyServer(function(input, output) {
   })
   
   output$listDists = renderUI({
-    p(paste("The following distilleries belong to cluster", input$whichClust), sep=" ")
+    p(paste("The following distilleries belong to cluster ", input$whichClust,":", sep=""))
   })
   
   output$clustCenters = renderTable({
@@ -72,11 +72,68 @@ shinyServer(function(input, output) {
     
   })
   
-  output$tabListDists = renderTable({
+  output$tabListDists = renderText({
     fit = fit()
     whiskies <- data.frame(whiskies, fit$cluster)
     
-    whiskies[which(whiskies$fit.cluster == input$whichClust),1, drop = FALSE]
+    paste0(paste(whiskies[which(whiskies$fit.cluster == input$whichClust),1], collapse=", "),".")
+    
+  })
+  
+  output$characterClust = renderText({
+    fit = fit()
+    extHighVals =  colnames(fit$centers)[which(fit$center[input$whichClust,]>1)]
+    extHighValsTxt = paste("extreme high values of:",paste(extHighVals, collapse = ", "))
+    extLowVals = colnames(fit$centers)[which(fit$center[input$whichClust,]< -1)]
+    extLowValsTxt =  paste("extreme low values of:",paste(extLowVals, collapse = ", "))
+    
+    highVals =  colnames(fit$centers)[which(fit$center[input$whichClust,]>0.5)]
+    if(length(highVals) > 0) 
+       highVals = highVals[which(!(highVals %in% extHighVals))]
+    highValsTxt = paste("high values of:",paste(highVals, collapse = ", "))
+    lowVals = colnames(fit$centers)[which(fit$center[input$whichClust,]< -0.5)]
+    if(length(lowVals) > 0)
+      lowVals = lowVals[which(!(lowVals %in% extLowVals))]
+    lowValsTxt =  paste("low values of:",paste(lowVals, collapse = ", "))
+    
+    if(length(extHighVals)>0 & length(extLowVals)>0)
+    {
+      out1 = paste0("Cluster ", input$whichClust, " is characterized by ", extHighValsTxt," and ", extLowValsTxt,".")
+    } else if(length(extHighVals) > 0)
+    {
+      out1 = paste0("Cluster ", input$whichClust, " is characterized by ", extHighValsTxt,".")
+    }else if(length(extLowVals) > 0)
+    {
+      out1 = paste0("Cluster ", input$whichClust, " is characterized by ", extLowValsTxt,".")
+    }else
+    {
+      out1 = paste0("Cluster ", input$whichClust, " is not characterized by extreme high or low values in any taste.")
+    }
+    
+    if(length(highVals)>0 & length(lowVals)>0)
+    {
+      out2 = paste0("Cluster ", input$whichClust, " is characterized by ", highValsTxt," and ", lowValsTxt,".")
+    } else if(length(highVals) > 0)
+    {
+      out2 = paste0("Cluster ", input$whichClust, " is characterized by ", highValsTxt,".")
+    }else if(length(lowVals) > 0)
+    {
+      out2 = paste0("Cluster ", input$whichClust, " is characterized by ", lowValsTxt,".")
+    }else
+    {
+      out2 = paste0("Cluster ", input$whichClust, " is not characterized by high or low values in any taste.")
+    }
+    paste(out1, out2,sep = "\n")
+  })
+  
+  output$uiSelDist = renderUI({
+    selectInput("selDist","Select Distillery", choices=whiskies$Distillery, multiple=TRUE)  
+  })
+  
+  output$tabDistDetails = renderTable({
+    rows = which(whiskies$Distillery %in% input$selDist)
+    df = data.frame(Distillery = whiskies$Distillery[rows], whiskies_k[rows,])
+    df
   })
   
   output$mapDists = renderPlot({
