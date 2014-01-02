@@ -21,8 +21,9 @@ shinyServer(function(input, output) {
   })
   
   output$UIwhichClust <- renderUI({
-    sliderInput("whichClust", "Filter on Cluster", value=1,
-                min = 1, max = input$numClust, step = 1)  
+    selectInput("whichClust", "Filter on Cluster", choices=1:input$numClust)
+    
+    
   })
   
   output$listDists = renderUI({
@@ -131,8 +132,9 @@ shinyServer(function(input, output) {
   })
   
   output$tabDistDetails = renderTable({
+    fit = fit()
     rows = which(whiskies$Distillery %in% input$selDist)
-    df = data.frame(Distillery = whiskies$Distillery[rows], whiskies_k[rows,])
+    df = data.frame(Distillery = whiskies$Distillery[rows], whiskies_k[rows,], Cluster = fit$cluster[rows])
     df
   })
   

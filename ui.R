@@ -10,7 +10,7 @@ K-means clustering 86 Single Malt Scotch Whiskeys</a>\n"),
 <a href>https://www.mathstat.strath.ac.uk/outreach/nessie/nessie_whisky.html </a>"),
       h1("Inputs"),
       sliderInput("numClust", "Number of Clusters", value=4,
-                  min = 1, max = 9, step = 1),
+                  min = 1, max = 14, step = 1),
       uiOutput("UIwhichClust"),
       width = 3
     ),
@@ -27,6 +27,7 @@ K-means clustering 86 Single Malt Scotch Whiskeys</a>\n"),
       tableOutput("representants"),
       
       h1("Notes for distillery"),
+      p("You can choose multiple distilleries with CTRL + Click."),
       uiOutput("uiSelDist"),
       tableOutput("tabDistDetails"),
 
