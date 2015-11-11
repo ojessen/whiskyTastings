@@ -166,13 +166,14 @@ shinyServer(function(input, output) {
     
     whiskies <- cbind(whiskies, geocode(paste(whiskies$Location, "Scotland", sep = " ,")))
     
+    scot_map = get_map(location = "Scotland", zoom = 6)
     
-    whiskyMap <- qmap(location = "Scotland", zoom = 6, legend = "topleft", maptype = "terrain", 
-                      color = "bw", darken = 0.5)
+    whiskyMap <- ggmap(scot_map, legend = "topleft", maptype = "terrain", 
+                      color = "bw", darken = 0.5, extent = "panel")
     
     
     p = whiskyMap + geom_point(data = whiskies, aes(x = whiskies.Latitude, y = whiskies.Longitude, 
-                                                    colour = fit.cluster, size = 2))
+                                                    colour = fit.cluster),size = 2)
     
     print(p)
   })
