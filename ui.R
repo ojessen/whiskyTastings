@@ -7,9 +7,11 @@ shinyUI(fluidPage(
 <a href=http://blog.revolutionanalytics.com/2013/12/k-means-clustering-86-single-malt-scotch-whiskies.html>
 K-means clustering 86 Single Malt Scotch Whiskeys</a>\n"),
       HTML("As in the original article, the data is from 
-<a href>https://www.mathstat.strath.ac.uk/outreach/nessie/nessie_whisky.html </a>"),
+<a href=https://www.mathstat.strath.ac.uk/outreach/nessie/nessie_whisky.html>
+           Classification of whiskies</a>\n"),
       HTML("You can download the code for the app from 
-           <a href>https://github.com/ojessen/whiskyTastings</a>"),
+           <a href=https://github.com/ojessen/whiskyTastings>
+           github.com</a>"),
       h1("Inputs"),
       sliderInput("numClust", "Number of Clusters", value=4,
                   min = 1, max = 14, step = 1),
