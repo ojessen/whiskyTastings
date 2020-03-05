@@ -7,10 +7,26 @@
 
 library(shiny)
 library(ggplot2)
+library(dplyr)
+library(tidyr)
 set.seed(1)
 
 whiskies <- read.csv("whiskies.txt", row.names = 1, stringsAsFactors = FALSE)
 whiskies_k <- scale(whiskies[2:13])  # rescale selected vars for kmeans
+
+m_whiskies = whiskies %>% 
+  select("Body":"Floral") %>% 
+  as.matrix
+rownames(m_whiskies) = whiskies$Distillery
+
+dist_whiskies = dist(m_whiskies) %>%
+  as.matrix() %>%
+  as.data.frame()
+
+long_dist_whiskey = gather(dist_whiskies) %>%
+  mutate(second_dist = rep(row.names(dist_whiskies), nrow(dist_whiskies))) %>%
+  rename(first_dist = key) %>%
+  filter(first_dist != second_dist)
 
 shinyServer(function(input, output) {
   
@@ -33,7 +49,7 @@ shinyServer(function(input, output) {
   output$clustCenters = renderTable({
     fit = fit()
     t(fit$centers)
-  })
+  }, rownames = TRUE)
   
   output$plotCenters = renderPlot({
     fit = fit()
@@ -138,6 +154,41 @@ shinyServer(function(input, output) {
     df
   })
   
+  output$uiSelDistEuclid = renderUI({
+    selectInput("selDistEuclid","Select Distillery", choices=whiskies$Distillery, multiple=TRUE)  
+  })
+  
+  output$euclidDistance = renderTable({
+    idx_dist = which(names(dist_whiskies) %in% input$selDistEuclid)
+    dist_whiskies[idx_dist,idx_dist]
+  },
+  rownames = TRUE)
+  
+  output$uiSelDistClose = renderUI({
+    selectInput("selDistClose","Select Distillery", choices=whiskies$Distillery, multiple=FALSE)  
+  })
+  
+  output$absClosest = renderText({
+    idx.min = which.min(long_dist_whiskey$value)
+    idx.max = which.max(long_dist_whiskey$value)
+    paste0("The two whiskeys most similar to each other are ",
+           long_dist_whiskey$first_dist[idx.min],
+           " and ", long_dist_whiskey$second_dist[idx.min], ".\n",
+           "The two whiskeys most unlike each other are ",
+           long_dist_whiskey$first_dist[idx.max],
+           " and ", long_dist_whiskey$second_dist[idx.max], ".")
+  })
+  
+  output$nextClosest = renderText({
+    sel_dist = input$selDistClose
+
+    select_euclid = long_dist_whiskey %>%
+      filter(first_dist == sel_dist)
+
+    closest_whiskey = select_euclid$second_dist[which.min(select_euclid$value)]
+    paste0("The closest whiskey to ", sel_dist, " is ", closest_whiskey)
+  })
+  
   output$mapDists = renderPlot({
     library("ggmap")
     fit = fit()
@@ -161,9 +212,9 @@ shinyServer(function(input, output) {
     
     whiskies.coord <- spTransform(whiskies.coord, CRS("+init=epsg:4326"))  # spTransform to convert osgb grid to lat/lon
     
-    whiskies <- cbind(whiskies, whiskies.coord)
+    whiskies <- cbind(whiskies, as.data.frame(whiskies.coord))
     
-    
+    source("google_api_key")
     whiskies <- cbind(whiskies, geocode(paste(whiskies$Location, "Scotland", sep = " ,")))
     
     scot_map = get_map(location = "Scotland", zoom = 6)

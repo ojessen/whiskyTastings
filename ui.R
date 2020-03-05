@@ -34,6 +34,16 @@ K-means clustering 86 Single Malt Scotch Whiskeys</a>\n"),
       p("You can choose multiple distilleries with CTRL + Click."),
       uiOutput("uiSelDist"),
       tableOutput("tabDistDetails"),
+      
+      h1("Next best whiskey"),
+      p("Inspired by Raoul Kübler, you can measure similarity by the euclidean distance matrix"),
+      uiOutput("uiSelDistEuclid"),
+      tableOutput("euclidDistance"),
+      textOutput("absClosest"),
+      p("What is, tastewise, the closest whiskey to your favorite?"),
+      uiOutput("uiSelDistClose"),
+      textOutput("nextClosest"),
+      
 
       h1("Map of distilleries"), 
       checkboxInput("filterMap", "Filter map on cluster?", value=FALSE),
