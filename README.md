@@ -1,7 +1,7 @@
 whiskyTastings
 ==============
 
-A little shiny app to explore whisky tastings
+A little shiny app to explore whisky tastings. To have a working map, you need to register a google api key. 
 
 I shamelessly copied most of the code from [Revolution][revo].
 
